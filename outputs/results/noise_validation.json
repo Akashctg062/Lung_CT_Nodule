@@ -1,0 +1,79 @@
+{
+  "cases": [
+    {
+      "case": "C002",
+      "dose": 0.1,
+      "mean_mAs": 68.51875,
+      "std_added_real_HU": 167.28883361816406,
+      "std_added_sim_HU": 167.27685546875,
+      "ratio": 0.9999284148216248,
+      "nps_peak_real": 0.34375,
+      "nps_peak_sim": 0.28125,
+      "nps_corr": 0.881612536843671
+    },
+    {
+      "case": "C004",
+      "dose": 0.1,
+      "mean_mAs": 45.21,
+      "std_added_real_HU": 166.51803588867188,
+      "std_added_sim_HU": 152.34445190429688,
+      "ratio": 0.9148826003074646,
+      "nps_peak_real": 0.3125,
+      "nps_peak_sim": 0.21875,
+      "nps_corr": 0.8393040579778313
+    },
+    {
+      "case": "C012",
+      "dose": 0.1,
+      "mean_mAs": 68.2275,
+      "std_added_real_HU": 193.3124542236328,
+      "std_added_sim_HU": 191.59446716308594,
+      "ratio": 0.9911128878593445,
+      "nps_peak_real": 0.375,
+      "nps_peak_sim": 0.28125,
+      "nps_corr": 0.7987714011056708
+    },
+    {
+      "case": "C016",
+      "dose": 0.1,
+      "mean_mAs": 29.85375,
+      "std_added_real_HU": 134.93663024902344,
+      "std_added_sim_HU": 133.8476104736328,
+      "ratio": 0.9919294118881226,
+      "nps_peak_real": 0.3125,
+      "nps_peak_sim": 0.28125,
+      "nps_corr": 0.8734226477651879
+    },
+    {
+      "case": "C021",
+      "dose": 0.1,
+      "mean_mAs": 36.385,
+      "std_added_real_HU": 142.01235961914062,
+      "std_added_sim_HU": 151.51171875,
+      "ratio": 1.066891074180603,
+      "nps_peak_real": 0.34375,
+      "nps_peak_sim": 0.3125,
+      "nps_corr": 0.8888490479008794
+    },
+    {
+      "case": "C027",
+      "dose": 0.1,
+      "mean_mAs": 52.525,
+      "std_added_real_HU": 137.7244873046875,
+      "std_added_sim_HU": 148.53451538085938,
+      "ratio": 1.0784902572631836,
+      "nps_peak_real": 0.25,
+      "nps_peak_sim": 0.25,
+      "nps_corr": 0.7847671681344741
+    }
+  ],
+  "i0_mode": "per_mAs",
+  "mean_ratio": 1.0072057666719088,
+  "sd_ratio": 0.05951922181762433,
+  "min_ratio": 0.9148825896922603,
+  "max_ratio": 1.078490240099837,
+  "config_key": "i0_per_mAs",
+  "config_value": 3820.0,
+  "recommended_value": 3886.527482067889,
+  "note": "set i0_per_mAs in configs/default.yaml to recommended_value and re-run; mean_ratio should then be ~1.0"
+}

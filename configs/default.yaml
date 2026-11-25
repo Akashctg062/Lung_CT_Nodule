@@ -1,0 +1,69 @@
+# ===================== DART-Nodule configuration =====================
+# Edit the three paths below, everything else can stay as is for the first run.
+lidc_root: "data/LIDC-IDRI"          # folder downloaded with NBIA Data Retriever (contains LIDC-IDRI-0001 ...)
+lidc_xml_root: "data/LIDC-XML-only"  # unzipped LIDC-XML-only.zip (leave as lidc_root if XMLs are inside the series folders)
+work_dir: "work"         # all outputs (tables, bank, models, figures) go here
+
+# optional external / validation datasets
+lungx_root: "data/LUNGx/images"      # SPIE-AAPM Lung CT Challenge DICOM folder (70 scans)
+lungx_truth: ["data/LUNGx/TestSet_NoduleData_PublicRelease_wTruth.xlsx",
+              "data/LUNGx/CalibrationSet_NoduleData.xlsx"]
+mayo_root: "data/Mayo"               # all chest cases: <case>/full_dose and <case>/low_dose (C002, C004, C012, C016, C021, C027)
+mayo_full_dir: "data/Mayo/C002/full_dose"   # used only if mayo_root is empty
+mayo_low_dir: "data/Mayo/C002/low_dose"     # same case, 10% dose images
+
+device: auto           # auto | cuda | cpu
+seed: 2026
+
+# ---------- cohort ----------
+min_readers: 3         # nodules annotated by >= 3 of 4 radiologists (standard LIDC consensus cohort)
+
+# ---------- physics simulation ----------
+n_angles: 360          # projection views of the parallel-beam simulator
+i0_mode: per_mAs       # per_mAs: I0 follows each slice's mAs and slice thickness (recommended); constant: one I0 for all scans
+i0_per_mAs: 3820.0     # photons/ray per mAs (mA x rotation time) at 1.5 mm; calibrated on 6 Mayo chest cases 2026-11-09 (ratio 0.976 +/- 0.059 at 4000 -> 3820)
+i0: 160000.0             # effective incident photons / ray at the native dose (calibrate with 06_validate_noise_sim.py)
+sigma_e: 10.0          # electronic noise (photon-equivalent std)
+crop_size: 48          # isotropic cube (voxels) stored in the bank
+iso_mm: 1.0
+conditions:            # acquisitions stored for every nodule
+  - {name: clean,        dose: 1.00, kernel: standard, rep: 0}
+  - {name: d050_r0,      dose: 0.50, kernel: standard, rep: 0}
+  - {name: d050_r1,      dose: 0.50, kernel: standard, rep: 1}
+  - {name: d025_r0,      dose: 0.25, kernel: standard, rep: 0}
+  - {name: d025_r1,      dose: 0.25, kernel: standard, rep: 1}
+  - {name: d010_r0,      dose: 0.10, kernel: standard, rep: 0}
+  - {name: d010_r1,      dose: 0.10, kernel: standard, rep: 1}
+  - {name: d005_r0,      dose: 0.05, kernel: standard, rep: 0}
+  - {name: d005_r1,      dose: 0.05, kernel: standard, rep: 1}
+  - {name: ksmooth_d100, dose: 1.00, kernel: smooth,   rep: 0}   # kernel shifts are NEVER used for training
+  - {name: ksharp_d100,  dose: 1.00, kernel: sharp,    rep: 0}
+  - {name: ksmooth_d025, dose: 0.25, kernel: smooth,   rep: 0}
+  - {name: ksharp_d025,  dose: 0.25, kernel: sharp,    rep: 0}
+train_dose_conditions: [d050_r0, d050_r1, d025_r0, d025_r1, d010_r0, d010_r1, d005_r0, d005_r1]
+eval_conditions: [clean, d050_r0, d025_r0, d010_r0, d005_r0, ksmooth_d100, ksharp_d100, ksmooth_d025, ksharp_d025]
+
+# ---------- training ----------
+bank_storage: memmap   # memmap: bank read from the SSD (~4 GB file in work_dir, little RAM); ram: all in memory
+n_folds: 5
+input_size: 44         # random 44^3 crop of the 48^3 cube
+epochs: 60
+batch_size: 32
+lr: 1.0e-3
+weight_decay: 1.0e-4
+width: 24
+p_clean: 0.5           # probability that the (first) training view is the native acquisition
+gauss_sigma_hu: [10, 110]
+amp: true
+variants:              # ablation ladder; DART = full model
+  baseline:          {aug: none,    consistency: 0.0, soft_labels: false, semantic: 0.0}
+  gauss:             {aug: gauss,   consistency: 0.0, soft_labels: false, semantic: 0.0}
+  physics:           {aug: physics, consistency: 0.0, soft_labels: false, semantic: 0.0}
+  physics_cons:      {aug: physics, consistency: 1.0, soft_labels: false, semantic: 0.0}
+  physics_cons_soft: {aug: physics, consistency: 1.0, soft_labels: true,  semantic: 0.0}
+  dart:              {aug: physics, consistency: 1.0, soft_labels: true,  semantic: 0.2}
+
+# ---------- conformal ----------
+alphas: [0.10, 0.05]
+n_noise_bins: 4
+n_boot: 1000
